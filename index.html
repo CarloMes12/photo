@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>La tua foto - Halloween a casa di Carlo</title>
+    
+    <style>
+        /* ==========================================================================
+           RESET & VARIABILI GENERALI (Stile Apple / Stripe / Tesla)
+           ========================================================================== */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        :root {
+            /* Palette Halloween Premium (Viola/Blu scuro) */
+            --bg-gradient: radial-gradient(circle at 50% 50%, #1a0f30 0%, #111111 50%, #090909 100%);
+            --accent-stripe: #635BFF; /* Azzurro/Viola Stripe */
+            --accent-glow: #7c4dff;   /* Viola acceso Halloween */
+            --text-main: #ffffff;
+            --text-muted: #888889;
+            --glass-bg: rgba(255, 255, 255, 0.03);
+            --glass-border: rgba(255, 255, 255, 0.08);
+            --glass-glow: rgba(124, 77, 255, 0.15); /* Bagliore viola */
+        }
+
+        body {
+            background: #090909;
+            color: var(--text-main);
+            min-height: 100vh;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            perspective: 1000px;
+        }
+
+        /* ==========================================================================
+           SFONDO ANIMATO PREMIUM (Particelle, Bagliori e Gradienti)
+           ========================================================================== */
+        .ambient-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: var(--bg-gradient);
+            z-index: 1;
+            overflow: hidden;
+        }
+
+        /* Cerchi sfocati in movimento (Orbital Glows) */
+        .glow-orb {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(120px);
+            opacity: 0.35; /* Leggermente ridotta per atmosfera cupa */
+            mix-blend-mode: screen;
+            pointer-events: none;
+            animation: floatOrb 20s infinite alternate ease-in-out;
+        }
+
+        .orb-1 {
+            width: 500px;
+            height: 500px;
+            background: #4a00e0; /* Viola scuro */
+            top: -10%;
+            left: -10%;
+            animation-duration: 25s;
+        }
+
+        .orb-2 {
+            width: 600px;
+            height: 600px;
+            background: #1a0f30; /* Viola quasi nero */
+            bottom: -20%;
+            right: -10%;
+            animation-duration: 30s;
+            animation-delay: -5s;
+        }
+
+        .orb-3 {
+            width: 400px;
+            height: 400px;
+            background: var(--accent-glow); /* Viola acceso */
+            top: 40%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            animation-duration: 20s;
+            animation-delay: -10s;
+        }
+
+        @keyframes floatOrb {
+            0% { transform: translate(0, 0) scale(1); }
+            50% { transform: translate(5%, 10%) scale(1.1); }
+            100% { transform: translate(-5%, -5%) scale(0.9); }
+        }
+
+        /* Canvas per Micro-Particelle */
+        #particleCanvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0.5; /* Meno particelle per atmosfera */
+            pointer-events: none;
+        }
+
+        /* ==========================================================================
+           CONTENITORE PRINCIPALE (Glassmorphism & Struttura)
+           ========================================================================== */
+        .container {
+            position: relative;
+            z-index: 10;
+            width: 100%;
+            max-width: 480px; /* Leggermente più larga per il testo lungo */
+            padding: 24px;
+            margin: 16px;
+        }
+
+        .card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(25px);
+            -webkit-backdrop-filter: blur(25px);
+            border: 1px solid var(--glass-border);
+            border-radius: 28px;
+            padding: 40px 32px;
+            text-align: center;
+            box-shadow: 0 24px 80px rgba(0, 0, 0, 0.6), 
+                        inset 0 1px 1px rgba(255, 255, 255, 0.08);
+            position: relative;
+            overflow: hidden;
+            transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1), 
+                        box-shadow 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+            animation: cardEntrance 1s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+
+        /* Effetto luce al passaggio del mouse sulla card */
+        .card:hover {
+            box-shadow: 0 30px 100px rgba(124, 77, 255, 0.1), /* Bagliore viola */
+                        0 24px 80px rgba(0, 0, 0, 0.7), 
+                        inset 0 1px 2px rgba(255, 255, 255, 0.12);
+        }
+
+        @keyframes cardEntrance {
+            from { opacity: 0; transform: translateY(40px) scale(0.95); filter: blur(10px); }
+            to { opacity: 1; transform: translateY(0) scale(1); filter: blur(0); }
+        }
+
+        /* ==========================================================================
+           ELEMENTI TIPOGRAFICI E ICONE
+           ========================================================================== */
+        .icon-wrapper {
+            font-size: 64px;
+            margin-bottom: 24px;
+            display: inline-block;
+            filter: drop-shadow(0 0 20px rgba(124, 77, 255, 0.2)); /* Bagliore viola */
+            animation: pulseIcon 3s ease-in-out infinite;
+        }
+
+        @keyframes pulseIcon {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.03); }
+        }
+
+        h1 {
+            font-size: 28px; /* Leggermente ridotto per titoli più lunghi */
+            font-weight: 700;
+            letter-spacing: -0.5px;
+            margin-bottom: 16px;
+            line-height: 1.2;
+            background: linear-gradient(180deg, #FFFFFF 0%, #D2D2D7 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        p {
+            font-size: 16px;
+            color: var(--text-muted);
+            line-height: 1.6; /* Interlinea aumentata per leggibilità */
+            margin-bottom: 40px;
+            padding: 0 10px;
+        }
+
+        /* Evidenziare il nome dell'evento */
+        .event-name {
+            color: var(--accent-glow);
+            font-weight: 600;
+        }
+
+        /* ==========================================================================
+           PULSANTI PREMIUM (Glow, Riflesso ed Effetto Click)
+           ========================================================================== */
+        .btn {
+            position: relative;
+            width: 100%;
+            padding: 18px 32px; /* Leggermente più alto */
+            border-radius: 100px;
+            border: none;
+            /* Gradiente Stripe adattato al viola */
+            background: linear-gradient(135deg, var(--accent-stripe) 0%, #4a00e0 100%);
+            color: #ffffff;
+            font-size: 16px;
+            font-weight: 600;
+            letter-spacing: -0.2px;
+            cursor: pointer;
+            outline: none;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(99, 91, 255, 0.3), 
+                        inset 0 1px 0 rgba(255, 255, 255, 0.2);
+            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            text-decoration: none; /* Rimuove sottolineatura se è un link <a> */
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        /* Effetto Luce/Riflesso che passa sul pulsante all'hover */
+        .btn::after {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -60%;
+            width: 30%;
+            height: 200%;
+            background: linear-gradient(
+                90deg,
+                rgba(255, 255, 255, 0) 0%,
+                rgba(255, 255, 255, 0.25) 50%,
+                rgba(255, 255, 255, 0) 100%
+            );
+            transform: rotate(30deg);
+            transition: none;
+        }
+
+        .btn:hover::after {
+            left: 140%;
+            transition: left 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .btn:hover {
+            transform: translateY(-2px) scale(1.02);
+            box-shadow: 0 12px 28px rgba(99, 91, 255, 0.45), 
+                        0 0 20px rgba(124, 77, 255, 0.2), /* Bagliore viola */
+                        inset 0 1px 0 rgba(255, 255, 255, 0.3);
+        }
+
+        .btn:active {
+            transform: translateY(1px) scale(0.99);
+            box-shadow: 0 4px 10px rgba(99, 91, 255, 0.3);
+        }
+
+        /* Icona piccola dentro il pulsante */
+        .btn-icon {
+            font-size: 18px;
+        }
+
+        /* ==========================================================================
+           RESPONSIVE
+           ========================================================================== */
+        @media(max-width: 480px) {
+            .card {
+                padding: 32px 24px;
+                border-radius: 24px;
+            }
+            h1 { font-size: 24px; }
+            p { font-size: 15px; margin-bottom: 32px; }
+            .btn { padding: 16px 28px; font-size: 15px; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="ambient-bg">
+        <div class="glow-orb orb-1"></div>
+        <div class="glow-orb orb-2"></div>
+        <div class="glow-orb orb-3"></div>
+        <canvas id="particleCanvas"></canvas>
+    </div>
+
+    <div class="container">
+        <div class="card">
+            
+            <div class="icon-wrapper">👻</div> <h1>Grazie per<br>aver partecipato!</h1>
+            
+            <p>Ciao, è stato un piacere averti con noi al programma<br><span class="event-name">Halloween a casa di Carlo</span>.<br><br>Se desideri scaricare la tua foto ricordo,<br>clicca sul pulsante qui sotto.</p>
+            
+            <a href="https://buy.stripe.com/fZu9AVfzvd3O9ue6Ndawo01" target="_blank" class="btn">
+                <span class="btn-icon">📸</span>
+                VISUALIZZA LA MIA FOTO
+            </a>
+
+        </div>
+    </div>
+
+    <script>
+        /* ==========================================================================
+           SISTEMA DI MICRO-PARTICELLE SU CANVAS (Stesso dell'altro file)
+           ========================================================================== */
+        const canvas = document.getElementById('particleCanvas');
+        const ctx = canvas.getContext('2d');
+
+        let particlesArray = [];
+        // Meno particelle per un'atmosfera più misteriosa
+        const numberOfParticles = 30;
+
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
+
+        class Particle {
+            constructor() {
+                this.x = Math.random() * canvas.width;
+                this.y = Math.random() * canvas.height;
+                this.size = Math.random() * 2 + 0.5;
+                this.speedX = Math.random() * 0.2 - 0.1; // Leggermente più lente
+                this.speedY = Math.random() * 0.2 - 0.1;
+                // Particelle viola molto sfocate
+                this.opacity = Math.random() * 0.3 + 0.1;
+            }
+            update() {
+                this.x += this.speedX;
+                this.y += this.speedY;
+
+                if (this.x > canvas.width) this.x = 0;
+                else if (this.x < 0) this.x = canvas.width;
+                if (this.y > canvas.height) this.y = 0;
+                else if (this.y < 0) this.y = canvas.height;
+            }
+            draw() {
+                ctx.fillStyle = `rgba(124, 77, 255, ${this.opacity})`; // Viola pallido
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fill();
+            }
+        }
+
+        function initParticles() {
+            particlesArray = [];
+            for (let i = 0; i < numberOfParticles; i++) {
+                particlesArray.push(new Particle());
+            }
+        }
+
+        function animateParticles() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            for (let i = 0; i < particlesArray.length; i++) {
+                particlesArray[i].update();
+                particlesArray[i].draw();
+            }
+            requestAnimationFrame(animateParticles);
+        }
+
+        initParticles();
+        animateParticles();
+
+        /* ==========================================================================
+           EFFETTO PARALLASSE SU CARD (Leggero movimento al mouse)
+           ========================================================================== */
+        // Applicalo solo su desktop per non disturbare lo scroll su mobile
+        if (window.innerWidth > 1024) {
+            window.addEventListener('mousemove', (e) => {
+                const moveX = (e.clientX - window.innerWidth / 2) * 0.005; // Molto leggero
+                const moveY = (e.clientY - window.innerHeight / 2) * 0.005;
+                document.querySelector('.card').style.transform = `rotateY(${moveX}deg) rotateX(${-moveY}deg)`;
+            });
+        }
+    </script>
+</body>
+</html>
