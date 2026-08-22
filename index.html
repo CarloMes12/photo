@@ -34,11 +34,13 @@
             background: #090909;
             color: var(--text-main);
             min-height: 100vh;
-            overflow: hidden;
+            overflow-y: auto; /* Permette lo scroll fluido se necessario su schermi piccoli */
+            overflow-x: hidden;
             display: flex;
             align-items: center;
             justify-content: center;
             perspective: 1000px;
+            padding: 20px 0;
         }
 
         /* ==========================================================================
@@ -185,14 +187,93 @@
             font-size: 16px;
             color: var(--text-muted);
             line-height: 1.6; /* Interlinea aumentata per leggibilità */
-            margin-bottom: 40px;
-            padding: 0 10px;
+            margin-bottom: 30px;
+            padding: 0 5px;
         }
 
         /* Evidenziare il nome dell'evento */
         .event-name {
             color: var(--accent-glow);
             font-weight: 600;
+        }
+
+        /* Stili aggiuntivi per le sezioni interne alla card */
+        .section-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--text-main);
+            margin: 28px 0 16px 0;
+            text-align: left;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            letter-spacing: -0.3px;
+        }
+
+        .steps-container {
+            text-align: left;
+            margin-bottom: 28px;
+        }
+
+        .step-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            margin-bottom: 14px;
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(255, 255, 255, 0.04);
+            border-radius: 14px;
+            padding: 12px 14px;
+        }
+
+        .step-number {
+            font-size: 18px;
+            line-height: 1.2;
+            flex-shrink: 0;
+        }
+
+        .step-text {
+            font-size: 14px;
+            color: #d2d2d7;
+            line-height: 1.5;
+        }
+
+        .info-box {
+            background: rgba(124, 77, 255, 0.06);
+            border: 1px solid rgba(124, 77, 255, 0.2);
+            border-radius: 16px;
+            padding: 16px;
+            text-align: left;
+            margin-bottom: 32px;
+        }
+
+        .info-box ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .info-box li {
+            font-size: 13px;
+            color: #e0e0e0;
+            line-height: 1.5;
+            margin-bottom: 8px;
+            position: relative;
+            padding-left: 18px;
+        }
+
+        .info-box li:last-child {
+            margin-bottom: 0;
+        }
+
+        .info-box li::before {
+            content: "•";
+            color: var(--accent-glow);
+            font-weight: bold;
+            font-size: 16px;
+            position: absolute;
+            left: 4px;
+            top: -2px;
         }
 
         /* ==========================================================================
@@ -269,12 +350,13 @@
            ========================================================================== */
         @media(max-width: 480px) {
             .card {
-                padding: 32px 24px;
+                padding: 32px 20px;
                 border-radius: 24px;
             }
             h1 { font-size: 24px; }
-            p { font-size: 15px; margin-bottom: 32px; }
-            .btn { padding: 16px 28px; font-size: 15px; }
+            p { font-size: 15px; margin-bottom: 24px; }
+            .btn { padding: 16px 24px; font-size: 15px; }
+            .step-text { font-size: 13.5px; }
         }
     </style>
 </head>
@@ -290,13 +372,51 @@
     <div class="container">
         <div class="card">
             
-            <div class="icon-wrapper">👻</div> <h1>Grazie per<br>aver partecipato!</h1>
+            <div class="icon-wrapper">📸</div> 
+            <h1>Ottieni la tua foto ricordo</h1>
             
-            <p>Ciao, è stato un piacere averti con noi al programma<br><span class="event-name">Halloween a casa di Carlo</span>.<br><br>Se desideri scaricare la tua foto ricordo,<br>clicca sul pulsante qui sotto.</p>
+            <p>Acquista la foto ricordo ufficiale della tua esperienza a <span class="event-name">Halloween a casa di Carlo</span> e portala subito con te.</p>
             
+            <div class="section-title">✨ Come funziona</div>
+
+            <div class="steps-container">
+                <div class="step-item">
+                    <span class="step-number">1️⃣</span>
+                    <span class="step-text">Premi il pulsante qui sotto per accedere alla pagina di pagamento sicura gestita da <strong>Stripe</strong>.</span>
+                </div>
+                <div class="step-item">
+                    <span class="step-number">2️⃣</span>
+                    <span class="step-text">Completa il pagamento inserendo i tuoi dati in totale sicurezza.</span>
+                </div>
+                <div class="step-item">
+                    <span class="step-number">3️⃣</span>
+                    <span class="step-text">Al termine del pagamento comparirà automaticamente il tuo <strong>QR Code personale</strong>.</span>
+                </div>
+                <div class="step-item">
+                    <span class="step-number">4️⃣</span>
+                    <span class="step-text">Mostra il QR Code al lettore posizionato vicino all'attrazione. Il sistema riconoscerà automaticamente il codice.</span>
+                </div>
+                <div class="step-item">
+                    <span class="step-number">5️⃣</span>
+                    <span class="step-text">Quando il lettore conferma il QR Code, scansiona il codice della tua foto per salvarla direttamente sul telefono.</span>
+                </div>
+            </div>
+
+            <div class="section-title">⚠️ Informazioni importanti</div>
+
+            <div class="info-box">
+                <ul>
+                    <li>Il QR Code generato dopo il pagamento è <strong>valido una sola volta</strong>.</li>
+                    <li>Ogni pagamento genera automaticamente un QR Code differente.</li>
+                    <li>Il QR Code è strettamente personale e non deve essere condiviso con nessuno.</li>
+                    <li>Il sistema utilizza QR Code monouso garantendo che ogni cliente possa accedere esclusivamente alla propria foto.</li>
+                    <li>Dopo essere stato utilizzato, il codice scadrà e non funzionerà più.</li>
+                </ul>
+            </div>
+
             <a href="https://buy.stripe.com/fZu9AVfzvd3O9ue6Ndawo01" target="_blank" class="btn">
-                <span class="btn-icon">📸</span>
-                VISUALIZZA LA MIA FOTO
+                <span class="btn-icon">💳</span>
+                VAI AL PAGAMENTO SICURO
             </a>
 
         </div>
