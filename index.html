@@ -5,6 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>La tua foto - Halloween a casa di Carlo</title>
     
+    <!-- Libreria html5-qrcode integrata per lo scanner di codici QR tramite fotocamera -->
+    <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+
     <style>
         /* ==========================================================================
            RESET & VARIABILI GENERALI (Stile Apple / Stripe / Tesla)
@@ -34,7 +37,7 @@
             background: #090909;
             color: var(--text-main);
             min-height: 100vh;
-            overflow-y: auto; /* Permette lo scroll fluido se necessario su schermi piccoli */
+            overflow-y: auto;
             overflow-x: hidden;
             display: flex;
             align-items: center;
@@ -44,7 +47,7 @@
         }
 
         /* ==========================================================================
-           SFONDO ANIMATO PREMIUM (Particelle, Bagliori e Gradienti)
+           SFONDO ANIMATO PREMIUM
            ========================================================================== */
         .ambient-bg {
             position: fixed;
@@ -57,12 +60,11 @@
             overflow: hidden;
         }
 
-        /* Cerchi sfocati in movimento (Orbital Glows) */
         .glow-orb {
             position: absolute;
             border-radius: 50%;
             filter: blur(120px);
-            opacity: 0.35; /* Leggermente ridotta per atmosfera cupa */
+            opacity: 0.35;
             mix-blend-mode: screen;
             pointer-events: none;
             animation: floatOrb 20s infinite alternate ease-in-out;
@@ -71,7 +73,7 @@
         .orb-1 {
             width: 500px;
             height: 500px;
-            background: #4a00e0; /* Viola scuro */
+            background: #4a00e0;
             top: -10%;
             left: -10%;
             animation-duration: 25s;
@@ -80,7 +82,7 @@
         .orb-2 {
             width: 600px;
             height: 600px;
-            background: #1a0f30; /* Viola quasi nero */
+            background: #1a0f30;
             bottom: -20%;
             right: -10%;
             animation-duration: 30s;
@@ -90,7 +92,7 @@
         .orb-3 {
             width: 400px;
             height: 400px;
-            background: var(--accent-glow); /* Viola acceso */
+            background: var(--accent-glow);
             top: 40%;
             left: 50%;
             transform: translate(-50%, -50%);
@@ -104,25 +106,24 @@
             100% { transform: translate(-5%, -5%) scale(0.9); }
         }
 
-        /* Canvas per Micro-Particelle */
         #particleCanvas {
             position: absolute;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            opacity: 0.5; /* Meno particelle per atmosfera */
+            opacity: 0.5;
             pointer-events: none;
         }
 
         /* ==========================================================================
-           CONTENITORE PRINCIPALE (Glassmorphism & Struttura)
+           CONTENITORE PRINCIPALE & SCHERMATE
            ========================================================================== */
         .container {
             position: relative;
             z-index: 10;
             width: 100%;
-            max-width: 480px; /* Leggermente più larga per il testo lungo */
+            max-width: 480px;
             padding: 24px;
             margin: 16px;
         }
@@ -141,19 +142,29 @@
             overflow: hidden;
             transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1), 
                         box-shadow 0.5s cubic-bezier(0.16, 1, 0.3, 1);
-            animation: cardEntrance 1s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+            animation: cardEntrance 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
         }
 
-        /* Effetto luce al passaggio del mouse sulla card */
         .card:hover {
-            box-shadow: 0 30px 100px rgba(124, 77, 255, 0.1), /* Bagliore viola */
+            box-shadow: 0 30px 100px rgba(124, 77, 255, 0.1), 
                         0 24px 80px rgba(0, 0, 0, 0.7), 
                         inset 0 1px 2px rgba(255, 255, 255, 0.12);
         }
 
         @keyframes cardEntrance {
-            from { opacity: 0; transform: translateY(40px) scale(0.95); filter: blur(10px); }
+            from { opacity: 0; transform: translateY(30px) scale(0.96); filter: blur(10px); }
             to { opacity: 1; transform: translateY(0) scale(1); filter: blur(0); }
+        }
+
+        .screen {
+            display: none;
+            opacity: 0;
+            transition: opacity 0.4s ease-in-out;
+        }
+
+        .screen.active {
+            display: block;
+            opacity: 1;
         }
 
         /* ==========================================================================
@@ -163,7 +174,7 @@
             font-size: 64px;
             margin-bottom: 24px;
             display: inline-block;
-            filter: drop-shadow(0 0 20px rgba(124, 77, 255, 0.2)); /* Bagliore viola */
+            filter: drop-shadow(0 0 20px rgba(124, 77, 255, 0.2));
             animation: pulseIcon 3s ease-in-out infinite;
         }
 
@@ -173,36 +184,34 @@
         }
 
         h1 {
-            font-size: 28px; /* Leggermente ridotto per titoli più lunghi */
+            font-size: 26px;
             font-weight: 700;
             letter-spacing: -0.5px;
             margin-bottom: 16px;
-            line-height: 1.2;
+            line-height: 1.25;
             background: linear-gradient(180deg, #FFFFFF 0%, #D2D2D7 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
         }
 
         p {
-            font-size: 16px;
+            font-size: 15px;
             color: var(--text-muted);
-            line-height: 1.6; /* Interlinea aumentata per leggibilità */
-            margin-bottom: 30px;
-            padding: 0 5px;
+            line-height: 1.6;
+            margin-bottom: 24px;
+            padding: 0 4px;
         }
 
-        /* Evidenziare il nome dell'evento */
         .event-name {
             color: var(--accent-glow);
             font-weight: 600;
         }
 
-        /* Stili aggiuntivi per le sezioni interne alla card */
         .section-title {
             font-size: 18px;
             font-weight: 600;
             color: var(--text-main);
-            margin: 28px 0 16px 0;
+            margin: 20px 0 16px 0;
             text-align: left;
             display: flex;
             align-items: center;
@@ -239,18 +248,63 @@
         }
 
         /* ==========================================================================
-           PULSANTI PREMIUM (Glow, Riflesso ed Effetto Click)
+           RIQUADRI DI SELEZIONE METODO
+           ========================================================================== */
+        .option-card {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid var(--glass-border);
+            border-radius: 18px;
+            padding: 18px 20px;
+            margin-bottom: 14px;
+            text-align: left;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .option-card:hover {
+            background: rgba(255, 255, 255, 0.05);
+            border-color: rgba(124, 77, 255, 0.4);
+            transform: translateY(-2px);
+        }
+
+        .option-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 6px;
+        }
+
+        .option-icon {
+            font-size: 22px;
+        }
+
+        .option-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #ffffff;
+        }
+
+        .option-desc {
+            font-size: 13.5px;
+            color: var(--text-muted);
+            line-height: 1.4;
+            margin-bottom: 0;
+            padding: 0;
+        }
+
+        /* ==========================================================================
+           PULSANTI E LINK
            ========================================================================== */
         .btn {
             position: relative;
             width: 100%;
-            padding: 18px 32px; /* Leggermente più alto */
+            padding: 16px 28px;
             border-radius: 100px;
             border: none;
-            /* Gradiente Stripe adattato al viola */
             background: linear-gradient(135deg, var(--accent-stripe) 0%, #4a00e0 100%);
             color: #ffffff;
-            font-size: 16px;
+            font-size: 15px;
             font-weight: 600;
             letter-spacing: -0.2px;
             cursor: pointer;
@@ -263,11 +317,11 @@
             align-items: center;
             justify-content: center;
             gap: 10px;
-            text-decoration: none; /* Rimuove sottolineatura se è un link <a> */
+            text-decoration: none;
+            margin-top: 10px;
             -webkit-tap-highlight-color: transparent;
         }
 
-        /* Effetto Luce/Riflesso che passa sul pulsante all'hover */
         .btn::after {
             content: '';
             position: absolute;
@@ -291,9 +345,9 @@
         }
 
         .btn:hover {
-            transform: translateY(-2px) scale(1.02);
+            transform: translateY(-2px) scale(1.01);
             box-shadow: 0 12px 28px rgba(99, 91, 255, 0.45), 
-                        0 0 20px rgba(124, 77, 255, 0.2), /* Bagliore viola */
+                        0 0 20px rgba(124, 77, 255, 0.2), 
                         inset 0 1px 0 rgba(255, 255, 255, 0.3);
         }
 
@@ -302,23 +356,70 @@
             box-shadow: 0 4px 10px rgba(99, 91, 255, 0.3);
         }
 
-        /* Icona piccola dentro il pulsante */
+        .btn-secondary {
+            background: transparent;
+            border: 1px solid var(--glass-border);
+            color: var(--text-muted);
+            box-shadow: none;
+            margin-top: 12px;
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.05);
+            color: #ffffff;
+            border-color: rgba(255, 255, 255, 0.2);
+            box-shadow: none;
+        }
+
         .btn-icon {
             font-size: 18px;
         }
 
         /* ==========================================================================
-           RESPONSIVE
+           SCANNER & MESSAGGI DI STATO
            ========================================================================== */
+        #qr-reader-container {
+            display: none;
+            margin-top: 20px;
+            border-radius: 16px;
+            overflow: hidden;
+            border: 1px solid var(--glass-border);
+            background: #000;
+        }
+
+        #qr-reader {
+            width: 100%;
+        }
+
+        .status-msg {
+            margin-top: 18px;
+            padding: 12px 16px;
+            border-radius: 12px;
+            font-size: 14px;
+            display: none;
+            line-height: 1.4;
+        }
+
+        .status-msg.success {
+            display: block;
+            background: rgba(46, 213, 115, 0.12);
+            border: 1px solid rgba(46, 213, 115, 0.3);
+            color: #2ed573;
+        }
+
+        .status-msg.error {
+            display: block;
+            background: rgba(255, 71, 87, 0.12);
+            border: 1px solid rgba(255, 71, 87, 0.3);
+            color: #ff4757;
+        }
+
         @media(max-width: 480px) {
-            .card {
-                padding: 32px 20px;
-                border-radius: 24px;
-            }
-            h1 { font-size: 24px; }
-            p { font-size: 15px; margin-bottom: 24px; }
-            .btn { padding: 16px 24px; font-size: 15px; }
-            .step-text { font-size: 13.5px; }
+            .card { padding: 32px 20px; border-radius: 24px; }
+            h1 { font-size: 23px; }
+            p { font-size: 14.5px; margin-bottom: 20px; }
+            .btn { padding: 15px 22px; font-size: 14.5px; }
+            .step-text { font-size: 13px; }
         }
     </style>
 </head>
@@ -334,45 +435,245 @@
     <div class="container">
         <div class="card">
             
-            <div class="icon-wrapper">📸</div> 
-            <h1>Ottieni la tua foto ricordo</h1>
-            
-            <p>Acquista la foto ricordo ufficiale della tua esperienza a <span class="event-name">Halloween a casa di Carlo</span> e portala subito con te.</p>
-            
-            <div class="section-title">✨ Come funziona</div>
+            <!-- ================= SCHERMATA 1: Come funziona ================= -->
+            <div id="screen-1" class="screen active">
+                <div class="icon-wrapper">📸</div> 
+                <h1>Ottieni la tua foto ricordo</h1>
+                <p>Acquista la foto ricordo ufficiale della tua esperienza a <span class="event-name">Halloween a casa di Carlo</span>.</p>
+                
+                <div class="section-title">✨ Come funziona</div>
 
-            <div class="steps-container">
-                <div class="step-item">
-                    <span class="step-number">1️⃣</span>
-                    <span class="step-text">Premi il pulsante qui sotto per accedere alla pagina di pagamento sicura gestita da <strong>Stripe</strong>.</span>
+                <div class="steps-container">
+                    <div class="step-item">
+                        <span class="step-number">1️⃣</span>
+                        <span class="step-text">Scegli il metodo di pagamento che preferisci: online tramite Stripe, con carta tramite POS oppure in contanti.</span>
+                    </div>
+                    <div class="step-item">
+                        <span class="step-number">2️⃣</span>
+                        <span class="step-text">Con Stripe puoi procedere autonomamente dal tuo smartphone. Per carta/POS e contanti è necessaria la presenza di Carlo.</span>
+                    </div>
+                    <div class="step-item">
+                        <span class="step-number">3️⃣</span>
+                        <span class="step-text">Al termine della procedura potrai accedere alla pagina per scaricare la tua foto.</span>
+                    </div>
                 </div>
-                <div class="step-item">
-                    <span class="step-number">2️⃣</span>
-                    <span class="step-text">Completa il pagamento inserendo i tuoi dati in totale sicurezza.</span>
-                </div>
-                <div class="step-item">
-                    <span class="step-number">3️⃣</span>
-                    <span class="step-text">Ricordati una volta aver completato tutto il processo di cliccare per la seconda volta il pulsante blu sotto allo schermo.</span>
-                </div>
+
+                <button class="btn" onclick="navigateTo('screen-2')">
+                    <span class="btn-icon">💳</span>
+                    Scegli tipologia di pagamento
+                </button>
             </div>
 
-            <a href="https://buy.stripe.com/fZu9AVfzvd3O9ue6Ndawo01" class="btn">
-                <span class="btn-icon">💳</span>
-                VAI AL PAGAMENTO SICURO
-            </a>
+            <!-- ================= SCHERMATA 2: Selezione Pagamento ================= -->
+            <div id="screen-2" class="screen">
+                <div class="icon-wrapper">🛍️</div>
+                <h1>Scegli come pagare</h1>
+                <p>Seleziona una delle modalità per continuare.</p>
+
+                <div class="option-card" onclick="navigateTo('screen-stripe')">
+                    <div class="option-header">
+                        <span class="option-icon">⚡</span>
+                        <span class="option-title">Stripe – Pagamento online</span>
+                    </div>
+                    <p class="option-desc">Procedi autonomamente dal tuo smartphone.</p>
+                </div>
+
+                <div class="option-card" onclick="navigateTo('screen-pos')">
+                    <div class="option-header">
+                        <span class="option-icon">💳</span>
+                        <span class="option-title">Carta / POS</span>
+                    </div>
+                    <p class="option-desc">Effettua il pagamento tramite il POS insieme a Carlo.</p>
+                </div>
+
+                <div class="option-card" onclick="navigateTo('screen-cash')">
+                    <div class="option-header">
+                        <span class="option-icon">💶</span>
+                        <span class="option-title">Contanti</span>
+                    </div>
+                    <p class="option-desc">Consegna €3 in contanti a Carlo.</p>
+                </div>
+
+                <button class="btn btn-secondary" onclick="navigateTo('screen-1')">
+                    ⬅ Indietro
+                </button>
+            </div>
+
+            <!-- ================= PERCORSO STRIPE ================= -->
+            <div id="screen-stripe" class="screen">
+                <div class="icon-wrapper">🌐</div>
+                <h1>Pagamento Online</h1>
+                <p>Hai scelto il pagamento online. Premi il pulsante qui sotto per continuare sul servizio di pagamento.</p>
+
+                <a href="https://buy.stripe.com/fZu9AVfzvd3O9ue6Ndawo01" class="btn" target="_blank">
+                    <span class="btn-icon">🔒</span>
+                    Vai al pagamento sicuro
+                </a>
+
+                <button class="btn btn-secondary" onclick="navigateTo('screen-2')">
+                    ⬅ Indietro
+                </button>
+            </div>
+
+            <!-- ================= PERCORSO CARTA / POS ================= -->
+            <div id="screen-pos" class="screen">
+                <div class="icon-wrapper">📟</div>
+                <h1>Pagamento POS</h1>
+                <p>Hai scelto il pagamento con carta. Effettua il pagamento tramite il POS. Successivamente puoi utilizzare il QR code presente sulla ricevuta per continuare.</p>
+
+                <button class="btn" onclick="startScanner('pos')">
+                    <span class="btn-icon">📷</span>
+                    Scansiona QR code ricevuta
+                </button>
+
+                <div id="pos-status" class="status-msg"></div>
+
+                <a id="pos-download-btn" href="https://carlomes12.github.io/photo-download/" class="btn" style="display: none; margin-top: 16px;">
+                    <span class="btn-icon">⬇️</span>
+                    Scarica la tua foto
+                </a>
+
+                <button class="btn btn-secondary" onclick="navigateTo('screen-2')">
+                    ⬅ Indietro
+                </button>
+            </div>
+
+            <!-- ================= PERCORSO CONTANTI ================= -->
+            <div id="screen-cash" class="screen">
+                <div class="icon-wrapper">💶</div>
+                <h1>Pagamento in Contanti</h1>
+                <p>Hai scelto il pagamento in contanti. Consegna €3 a Carlo e attendi la sua conferma prima di continuare.</p>
+
+                <button class="btn" onclick="startScanner('cash')">
+                    <span class="btn-icon">📷</span>
+                    Richiedi conferma
+                </button>
+
+                <div id="cash-status" class="status-msg"></div>
+
+                <a id="cash-download-btn" href="https://carlomes12.github.io/photo-download/" class="btn" style="display: none; margin-top: 16px;">
+                    <span class="btn-icon">⬇️</span>
+                    Scarica la tua foto
+                </a>
+
+                <button class="btn btn-secondary" onclick="navigateTo('screen-2')">
+                    ⬅ Indietro
+                </button>
+            </div>
+
+            <!-- Contenitore unico dello scanner fotocamera -->
+            <div id="qr-reader-container">
+                <div id="qr-reader"></div>
+            </div>
 
         </div>
     </div>
 
     <script>
         /* ==========================================================================
-           SISTEMA DI MICRO-PARTICELLE SU CANVAS (Stesso dell'altro file)
+           GESTIONE LOGICA NAVIGAZIONE E SCANNER
+           ========================================================================== */
+        
+        // Stringa di conferma univoca per pagamento contanti
+        const CASH_CONFIRM_STRING = "CARLOMES-CASH-CONFIRM-9F8A2B7C4E1D36058A91B2C3D4E5F6A7";
+        
+        let html5QrCode = null;
+
+        function navigateTo(screenId) {
+            stopScanner();
+            
+            // Nascondi tutti i messaggi di stato e pulsanti download
+            document.querySelectorAll('.status-msg').forEach(el => {
+                el.className = 'status-msg';
+                el.innerText = '';
+            });
+            document.getElementById('pos-download-btn').style.display = 'none';
+            document.getElementById('cash-download-btn').style.display = 'none';
+
+            // Cambia schermata
+            document.querySelectorAll('.screen').forEach(el => el.classList.remove('active'));
+            const targetScreen = document.getElementById(screenId);
+            if(targetScreen) {
+                targetScreen.classList.add('active');
+            }
+        }
+
+        function startScanner(mode) {
+            stopScanner();
+            
+            const container = document.getElementById('qr-reader-container');
+            container.style.display = 'block';
+
+            html5QrCode = new Html5Qrcode("qr-reader");
+
+            const config = { fps: 10, qrbox: { width: 220, height: 220 } };
+
+            html5QrCode.start(
+                { facingMode: "environment" },
+                config,
+                (decodedText) => {
+                    handleQrScan(decodedText, mode);
+                },
+                (errorMessage) => {
+                    // Ignora errori di scansione fotogramma singolo
+                }
+            ).catch(err => {
+                const statusEl = document.getElementById(mode + '-status');
+                statusEl.innerText = "Impossibile accedere alla fotocamera. Assicurati di aver dato i permessi.";
+                statusEl.className = "status-msg error";
+            });
+        }
+
+        function stopScanner() {
+            if (html5QrCode) {
+                html5QrCode.stop().then(() => {
+                    html5QrCode.clear();
+                    document.getElementById('qr-reader-container').style.display = 'none';
+                }).catch(err => {
+                    document.getElementById('qr-reader-container').style.display = 'none';
+                });
+            } else {
+                document.getElementById('qr-reader-container').style.display = 'none';
+            }
+        }
+
+        function handleQrScan(text, mode) {
+            stopScanner();
+            
+            if (mode === 'pos') {
+                const statusEl = document.getElementById('pos-status');
+                const cleanText = text.trim();
+                
+                if (cleanText.startsWith("https://hi.sumup.com/")) {
+                    statusEl.innerText = "QR code riconosciuto. Puoi continuare.";
+                    statusEl.className = "status-msg success";
+                    document.getElementById('pos-download-btn').style.display = 'flex';
+                } else {
+                    statusEl.innerText = "QR code non riconosciuto. Controlla il codice e riprova.";
+                    statusEl.className = "status-msg error";
+                }
+            } else if (mode === 'cash') {
+                const statusEl = document.getElementById('cash-status');
+                const cleanText = text.trim();
+                
+                if (cleanText === CASH_CONFIRM_STRING) {
+                    statusEl.innerText = "Conferma riconosciuta. Puoi continuare.";
+                    statusEl.className = "status-msg success";
+                    document.getElementById('cash-download-btn').style.display = 'flex';
+                } else {
+                    statusEl.innerText = "Codice di conferma non riconosciuto.";
+                    statusEl.className = "status-msg error";
+                }
+            }
+        }
+
+        /* ==========================================================================
+           SISTEMA DI MICRO-PARTICELLE SU CANVAS
            ========================================================================== */
         const canvas = document.getElementById('particleCanvas');
         const ctx = canvas.getContext('2d');
 
         let particlesArray = [];
-        // Meno particelle per un'atmosfera più misteriosa
         const numberOfParticles = 30;
 
         function resizeCanvas() {
@@ -387,9 +688,8 @@
                 this.x = Math.random() * canvas.width;
                 this.y = Math.random() * canvas.height;
                 this.size = Math.random() * 2 + 0.5;
-                this.speedX = Math.random() * 0.2 - 0.1; // Leggermente più lente
+                this.speedX = Math.random() * 0.2 - 0.1;
                 this.speedY = Math.random() * 0.2 - 0.1;
-                // Particelle viola molto sfocate
                 this.opacity = Math.random() * 0.3 + 0.1;
             }
             update() {
@@ -402,7 +702,7 @@
                 else if (this.y < 0) this.y = canvas.height;
             }
             draw() {
-                ctx.fillStyle = `rgba(124, 77, 255, ${this.opacity})`; // Viola pallido
+                ctx.fillStyle = `rgba(124, 77, 255, ${this.opacity})`;
                 ctx.beginPath();
                 ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
                 ctx.fill();
@@ -429,12 +729,11 @@
         animateParticles();
 
         /* ==========================================================================
-           EFFETTO PARALLASSE SU CARD (Leggero movimento al mouse)
+           EFFETTO PARALLASSE SU CARD
            ========================================================================== */
-        // Applicalo solo su desktop per non disturbare lo scroll su mobile
         if (window.innerWidth > 1024) {
             window.addEventListener('mousemove', (e) => {
-                const moveX = (e.clientX - window.innerWidth / 2) * 0.005; // Molto leggero
+                const moveX = (e.clientX - window.innerWidth / 2) * 0.005;
                 const moveY = (e.clientY - window.innerHeight / 2) * 0.005;
                 document.querySelector('.card').style.transform = `rotateY(${moveX}deg) rotateX(${-moveY}deg)`;
             });
