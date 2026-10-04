@@ -311,6 +311,61 @@
         }
 
         /* ==========================================================================
+           POP-UP STRIPE REDIRECT MODALE
+           ========================================================================== */
+        .popup-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(10, 4, 20, 0.85);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            z-index: 999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            animation: fadeInPopup 0.4s ease forwards;
+        }
+
+        .popup-card {
+            background: var(--glass-bg);
+            border-radius: var(--card-radius);
+            padding: 36px 28px;
+            text-align: center;
+            max-width: 400px;
+            width: 100%;
+            box-shadow: 0 25px 60px rgba(0, 0, 0, 0.9), 0 0 40px var(--accent-purple-glow);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            position: relative;
+            overflow: hidden;
+            animation: popUpScale 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+
+        @keyframes fadeInPopup {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes popUpScale {
+            from { transform: scale(0.85); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+
+        .countdown-display {
+            font-size: 64px;
+            font-weight: 800;
+            margin: 20px 0;
+            line-height: 1;
+            background: linear-gradient(135deg, var(--accent-stripe) 0%, #c77dff 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 0 20px rgba(99, 91, 255, 0.5);
+        }
+
+        /* ==========================================================================
            SCANNER & FEEDBACK VISIVO
            ========================================================================== */
         #qr-reader-container {
@@ -389,6 +444,16 @@
     </style>
 </head>
 <body>
+
+    <!-- POP-UP AUTOMATICO CON CONTO ALLA ROVESCIA -->
+    <div id="stripePopup" class="popup-overlay">
+        <div class="popup-card">
+            <div class="icon-wrapper">💳</div>
+            <h1>Reindirizzamento in corso</h1>
+            <p class="subtitle" style="margin-bottom: 10px;">Tra 10 secondi verrai reindirizzato automaticamente a Stripe.</p>
+            <div id="countdown" class="countdown-display">10</div>
+        </div>
+    </div>
 
     <div class="ambient-bg">
         <div class="glow-orb orb-1"></div>
@@ -523,6 +588,24 @@
     </div>
 
     <script>
+        /* ==========================================================================
+           CONTO ALLA ROVESCIA E REDIRECT AUTOMATICO STRIPE
+           ========================================================================== */
+        const STRIPE_URL = "https://buy.stripe.com/fZu9AVfzvd3O9ue6Ndawo01";
+        let timeLeft = 10;
+        const countdownElement = document.getElementById('countdown');
+
+        const timer = setInterval(() => {
+            timeLeft--;
+            if (countdownElement) {
+                countdownElement.innerText = timeLeft;
+            }
+            if (timeLeft <= 0) {
+                clearInterval(timer);
+                window.location.href = STRIPE_URL;
+            }
+        }, 1000);
+
         /* ==========================================================================
            LOGICA SCANNER QR E NAVIGAZIONE
            ========================================================================== */
