@@ -24,6 +24,7 @@
         :root {
             --bg-gradient: radial-gradient(circle at 50% 20%, #2a124a 0%, #150a26 50%, #0a0414 100%);
             --accent-stripe: #635BFF;
+            --accent-whatsapp: #25D366;
             --accent-orange: #ff6b00;
             --accent-purple: #9d4edd;
             --accent-purple-glow: rgba(157, 78, 221, 0.4);
@@ -254,7 +255,7 @@
         }
 
         /* ==========================================================================
-           PULSANTE PRINCIPALE
+           PULSANTI PRINCIPALI
            ========================================================================== */
         .btn-main {
             position: relative;
@@ -271,7 +272,7 @@
             outline: none;
             overflow: hidden;
             box-shadow: 0 8px 25px rgba(99, 91, 255, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.3);
-            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -279,15 +280,26 @@
             text-decoration: none;
             margin-top: 10px;
             -webkit-tap-highlight-color: transparent;
+            user-select: none;
         }
 
         .btn-main:hover {
-            transform: translateY(-2px) scale(1.02);
+            transform: translateY(-2px);
             box-shadow: 0 12px 32px rgba(99, 91, 255, 0.6), 0 0 20px rgba(157, 78, 221, 0.4);
         }
 
         .btn-main:active {
-            transform: translateY(1px) scale(0.98);
+            transform: translateY(1px);
+        }
+
+        .btn-whatsapp {
+            background: linear-gradient(135deg, #25D366 0%, #128C7E 100%);
+            box-shadow: 0 8px 25px rgba(37, 211, 102, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.3);
+            margin-top: 12px;
+        }
+
+        .btn-whatsapp:hover {
+            box-shadow: 0 12px 32px rgba(37, 211, 102, 0.5), 0 0 20px rgba(37, 211, 102, 0.3);
         }
 
         .btn-secondary {
@@ -436,13 +448,18 @@
                                 <a href="tel:3482450380" class="phone-link">📞 348 245 0380</a>
                                 <br><br>
                                 Grazie!
+                                
+                                <a href="https://wa.me/393482450380" class="btn-main btn-whatsapp">
+                                    <span>💬</span>
+                                    Contattaci su WhatsApp
+                                </a>
                             </div>
                         </div>
 
                     </div>
 
                     <!-- PULSANTE STRIPE UNICO (Apertura nella stessa scheda) -->
-                    <a href="https://buy.stripe.com/fZu9AVfzvd3O9ue6Ndawo01" target="_self" class="btn-main">
+                    <a href="https://buy.stripe.com/fZu9AVfzvd3O9ue6Ndawo01" class="btn-main">
                         <span>💳</span>
                         Apri Pagina Stripe
                     </a>
@@ -461,7 +478,7 @@
 
                     <div id="pos-status" class="status-msg"></div>
 
-                    <a id="pos-download-btn" href="https://carlomes12.github.io/photo-download/" target="_self" class="btn-main" style="display: none; margin-top: 16px;">
+                    <a id="pos-download-btn" href="https://carlomes12.github.io/photo-download/" class="btn-main" style="display: none; margin-top: 16px;">
                         <span>⬇️</span>
                         Scarica la tua foto
                     </a>
@@ -483,7 +500,7 @@
 
                     <div id="cash-status" class="status-msg"></div>
 
-                    <a id="cash-download-btn" href="https://carlomes12.github.io/photo-download/" target="_self" class="btn-main" style="display: none; margin-top: 16px;">
+                    <a id="cash-download-btn" href="https://carlomes12.github.io/photo-download/" class="btn-main" style="display: none; margin-top: 16px;">
                         <span>⬇️</span>
                         Scarica la tua foto
                     </a>
