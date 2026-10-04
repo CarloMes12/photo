@@ -50,7 +50,7 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            padding: 30px 16px;
+            padding: 30px 16px 100px 16px; /* Spazio extra in basso per non coprire il contenuto con il banner */
             overflow-x: hidden;
             overflow-y: auto;
         }
@@ -311,58 +311,124 @@
         }
 
         /* ==========================================================================
-           POP-UP STRIPE REDIRECT MODALE
+           BANNER IN BASSO (COUNTDOWN STRIPE) E MODALE
            ========================================================================== */
-        .popup-overlay {
+        .bottom-banner {
+            position: fixed;
+            bottom: 16px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: calc(100% - 32px);
+            max-width: 480px;
+            background: rgba(23, 15, 38, 0.95);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(157, 78, 221, 0.4);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8), 0 0 20px var(--accent-purple-glow);
+            border-radius: 20px;
+            padding: 14px 18px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            z-index: 100;
+            animation: slideUpBanner 0.4s ease forwards;
+        }
+
+        @keyframes slideUpBanner {
+            from { transform: translate(-50%, 100px); opacity: 0; }
+            to { transform: translate(-50%, 0); opacity: 1; }
+        }
+
+        .banner-text {
+            font-size: 13.5px;
+            color: var(--text-main);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .banner-timer-badge {
+            background: linear-gradient(135deg, var(--accent-stripe) 0%, #4a00e0 100%);
+            color: #fff;
+            font-weight: 800;
+            font-size: 16px;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            box-shadow: 0 0 10px rgba(99, 91, 255, 0.5);
+        }
+
+        .close-banner-btn {
+            background: rgba(255, 255, 255, 0.1);
+            border: none;
+            color: #ffffff;
+            font-size: 16px;
+            font-weight: bold;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.2s ease;
+            margin-left: 10px;
+        }
+
+        .close-banner-btn:hover {
+            background: rgba(255, 71, 87, 0.6);
+        }
+
+        /* MODALE DI CONFERMA PAUSA */
+        .modal-overlay {
             position: fixed;
             top: 0;
             left: 0;
             width: 100vw;
             height: 100vh;
             background: rgba(10, 4, 20, 0.85);
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
             z-index: 999;
-            display: flex;
+            display: none;
             align-items: center;
             justify-content: center;
             padding: 20px;
-            animation: fadeInPopup 0.4s ease forwards;
         }
 
-        .popup-card {
+        .modal-card {
             background: var(--glass-bg);
             border-radius: var(--card-radius);
-            padding: 36px 28px;
+            padding: 28px 22px;
             text-align: center;
             max-width: 400px;
             width: 100%;
             box-shadow: 0 25px 60px rgba(0, 0, 0, 0.9), 0 0 40px var(--accent-purple-glow);
             border: 1px solid rgba(255, 255, 255, 0.2);
-            position: relative;
-            overflow: hidden;
-            animation: popUpScale 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-        }
-
-        @keyframes fadeInPopup {
-            from { opacity: 0; }
-            to { opacity: 1; }
+            animation: popUpScale 0.3s ease forwards;
         }
 
         @keyframes popUpScale {
-            from { transform: scale(0.85); opacity: 0; }
+            from { transform: scale(0.9); opacity: 0; }
             to { transform: scale(1); opacity: 1; }
         }
 
-        .countdown-display {
-            font-size: 64px;
-            font-weight: 800;
-            margin: 20px 0;
-            line-height: 1;
-            background: linear-gradient(135deg, var(--accent-stripe) 0%, #c77dff 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            text-shadow: 0 0 20px rgba(99, 91, 255, 0.5);
+        .modal-title {
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 12px;
+            color: #ffffff;
+        }
+
+        .modal-body {
+            font-size: 13.5px;
+            color: var(--text-muted);
+            line-height: 1.5;
+            margin-bottom: 20px;
         }
 
         /* ==========================================================================
@@ -445,16 +511,6 @@
 </head>
 <body>
 
-    <!-- POP-UP AUTOMATICO CON CONTO ALLA ROVESCIA -->
-    <div id="stripePopup" class="popup-overlay">
-        <div class="popup-card">
-            <div class="icon-wrapper">💳</div>
-            <h1>Reindirizzamento in corso</h1>
-            <p class="subtitle" style="margin-bottom: 10px;">Tra 10 secondi verrai reindirizzato automaticamente a Stripe.</p>
-            <div id="countdown" class="countdown-display">10</div>
-        </div>
-    </div>
-
     <div class="ambient-bg">
         <div class="glow-orb orb-1"></div>
         <div class="glow-orb orb-2"></div>
@@ -523,11 +579,6 @@
 
                     </div>
 
-                    <!-- PULSANTE STRIPE UNICO (Apertura nella stessa scheda) -->
-                    <a href="https://buy.stripe.com/fZu9AVfzvd3O9ue6Ndawo01" class="btn-main">
-                        <span>💳</span>
-                        Apri Pagina Stripe
-                    </a>
                 </div>
 
                 <!-- ================= ALTRE SCHERMATE E SCANNER MANTENUTI ================= -->
@@ -544,7 +595,7 @@
                     <div id="pos-status" class="status-msg"></div>
 
                     <a id="pos-download-btn" href="https://carlomes12.github.io/photo-download/" class="btn-main" style="display: none; margin-top: 16px;">
-                        <span>⬇️</span>
+                        <span>⬇️️</span>
                         Scarica la tua foto
                     </a>
 
@@ -587,24 +638,85 @@
         </div>
     </div>
 
+    <!-- BANNER FISSO IN BASSO -->
+    <div id="bottomBanner" class="bottom-banner">
+        <div class="banner-text">
+            <div id="bannerTimer" class="banner-timer-badge">10</div>
+            <span>Reindirizzamento automatico a Stripe...</span>
+        </div>
+        <button class="close-banner-btn" onclick="pauseCountdown()" title="Metti in pausa">✕</button>
+    </div>
+
+    <!-- POP-UP MODALE DI CONFERMA INTERRUZIONE -->
+    <div id="confirmModal" class="modal-overlay">
+        <div class="modal-card">
+            <div class="modal-title">Sei sicuro di voler annullare il countdown?</div>
+            <div class="modal-body">
+                Così non potrai più andare a Stripe. L'unico modo per andare a Stripe sarà riscansionare nuovamente il QR code sul muro bianco o aggiornare la pagina.
+            </div>
+            <button class="btn-main" onclick="stopCountdownPermanently()">
+                🛑 Ferma il countdown e leggi indicazioni
+            </button>
+            <button class="btn-main btn-secondary" onclick="resumeCountdown()">
+                ▶ Annulla e continua countdown
+            </button>
+        </div>
+    </div>
+
     <script>
         /* ==========================================================================
-           CONTO ALLA ROVESCIA E REDIRECT AUTOMATICO STRIPE
+           CONTO ALLA ROVESCIA IN BASSO E GESTIONE PAUSA/STOP
            ========================================================================== */
         const STRIPE_URL = "https://buy.stripe.com/fZu9AVfzvd3O9ue6Ndawo01";
         let timeLeft = 10;
-        const countdownElement = document.getElementById('countdown');
+        let timerInterval = null;
+        let isPaused = false;
 
-        const timer = setInterval(() => {
-            timeLeft--;
-            if (countdownElement) {
-                countdownElement.innerText = timeLeft;
+        const bannerTimerEl = document.getElementById('bannerTimer');
+        const confirmModalEl = document.getElementById('confirmModal');
+        const bottomBannerEl = document.getElementById('bottomBanner');
+
+        function startTimer() {
+            timerInterval = setInterval(() => {
+                if (!isPaused) {
+                    timeLeft--;
+                    if (bannerTimerEl) {
+                        bannerTimerEl.innerText = timeLeft;
+                    }
+                    if (timeLeft <= 0) {
+                        clearInterval(timerInterval);
+                        window.location.href = STRIPE_URL;
+                    }
+                }
+            }, 1000);
+        }
+
+        function pauseCountdown() {
+            isPaused = true;
+            if (confirmModalEl) {
+                confirmModalEl.style.display = 'flex';
             }
-            if (timeLeft <= 0) {
-                clearInterval(timer);
-                window.location.href = STRIPE_URL;
+        }
+
+        function resumeCountdown() {
+            if (confirmModalEl) {
+                confirmModalEl.style.display = 'none';
             }
-        }, 1000);
+            isPaused = false;
+        }
+
+        function stopCountdownPermanently() {
+            clearInterval(timerInterval);
+            if (confirmModalEl) {
+                confirmModalEl.style.display = 'none';
+            }
+            if (bottomBannerEl) {
+                bottomBannerEl.style.display = 'none';
+            }
+        }
+
+        // Avvio del timer all'apertura
+        startTimer();
 
         /* ==========================================================================
            LOGICA SCANNER QR E NAVIGAZIONE
