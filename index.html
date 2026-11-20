@@ -11,11 +11,13 @@
 .payment-progress-bar.running{width:100%}
 .buy.processing{opacity:.8;pointer-events:none}
 @media(prefers-reduced-motion:reduce){.payment-progress-bar{transition:none}}
-</style></head><body><div class="scene" aria-hidden="true"><span class="ornament">🎄</span><span class="ornament">🦌</span><span class="ornament">⛄</span><span class="ornament">🎅</span><span class="ornament">❄️</span><span class="ornament">✨</span><span class="flake">❄</span><span class="flake">❄</span><span class="flake">❄</span><span class="flake">❄</span><span class="flake">❄</span></div><main class="panel"><section id="instructions" class="intro"><div class="eyebrow">Carlo.Mes • Natale</div><h1>La tua foto ricordo 🎄</h1><p class="intro-copy">Tra poco potrai vedere l’ultima fotografia scattata. L’anteprima avrà la scritta <strong>“Carlo.Mes – Non Pagato”</strong> sovrapposta.<br><br>Se desideri portare a casa il tuo ricordo <strong>senza filigrana</strong>, premi il pulsante di acquisto sotto la fotografia e completa il pagamento sicuro di <strong>3 €</strong> con Stripe.</p><p class="mini-thanks">Grazie per aver scelto di portare a casa un ricordo di Natale! ❤️</p><button class="buy next" id="continue" type="button">Visualizza la mia foto</button></section><section id="preview" class="hidden-page"><div class="eyebrow">Carlo.Mes • Natale</div><h1>La tua foto ricordo 🎄</h1><p class="lead">Questa è l’anteprima con filigrana. Per scaricare la foto originale, procedi all’acquisto.</p><div class="photo" id="photo"><div class="placeholder" id="status"><div class="spinner"></div><span>Caricamento della fotografia...</span></div><img id="picture" alt="Anteprima dell'ultima fotografia scattata" draggable="false" hidden><img id="watermark" src="filigrana_carlomes.png" alt="" aria-hidden="true" draggable="false"><img id="watermark-extra" src="filigrana_carlomes.png" alt="" aria-hidden="true" draggable="false"></div><a class="buy" id="buy" aria-disabled="true" href="https://buy.stripe.com/fZu9AVfzvd3O9ue6Ndawo01">Acquista la mia foto – 3 €</a><div class="payment-progress" role="progressbar" aria-label="Preparazione del pagamento" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><div class="payment-progress-bar" id="payment-progress-bar"></div></div><button class="refresh" id="refresh" type="button">Aggiorna la fotografia</button><button class="back-instructions" id="back-instructions" type="button">Torna a istruzioni</button></section></main>
+</style></head><body><div class="scene" aria-hidden="true"><span class="ornament">🎄</span><span class="ornament">🦌</span><span class="ornament">⛄</span><span class="ornament">🎅</span><span class="ornament">❄️</span><span class="ornament">✨</span><span class="flake">❄</span><span class="flake">❄</span><span class="flake">❄</span><span class="flake">❄</span><span class="flake">❄</span></div><main class="panel"><section id="instructions" class="intro"><div class="eyebrow">Carlo.Mes • Natale</div><h1>La tua foto ricordo 🎄</h1><p class="intro-copy">Tra poco potrai vedere l’ultima fotografia scattata. L’anteprima avrà la scritta <strong>“Carlo.Mes – Non Pagato”</strong> sovrapposta.<br><br>Se desideri portare a casa il tuo ricordo <strong>senza filigrana</strong>, premi il pulsante di acquisto sotto la fotografia e completa il pagamento sicuro di <strong>3 €</strong> con Stripe.</p><p class="mini-thanks">Grazie per aver scelto di portare a casa un ricordo di Natale! ❤️</p><button class="buy next" id="continue" type="button">Visualizza la mia foto</button></section><section id="preview" class="hidden-page"><div class="eyebrow">Carlo.Mes • Natale</div><h1>La tua foto ricordo 🎄</h1><p class="lead">Questa è l’anteprima con filigrana. Per scaricare la foto originale, procedi all’acquisto.</p><div class="photo" id="photo"><div class="placeholder" id="status"><div class="spinner"></div><span>Caricamento della fotografia...</span></div><img id="picture" alt="Anteprima dell'ultima fotografia scattata" draggable="false" hidden><img id="watermark" src="filigrana_carlomes.png" alt="" aria-hidden="true" draggable="false"><img id="watermark-extra" src="filigrana_carlomes.png" alt="" aria-hidden="true" draggable="false"></div><a class="buy" id="buy" aria-disabled="true" href="#">Acquista la mia foto – 3 €</a><div class="payment-progress" role="progressbar" aria-label="Preparazione del pagamento" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><div class="payment-progress-bar" id="payment-progress-bar"></div></div><button class="refresh" id="refresh" type="button">Aggiorna la fotografia</button><button class="back-instructions" id="back-instructions" type="button">Torna a istruzioni</button></section></main>
 <script>
 const API='https://jpctjrzvjljhouvpmptb.supabase.co/functions/v1/ultima-foto';
+const CHECKOUT_API='https://jpctjrzvjljhouvpmptb.supabase.co/functions/v1/crea-pagamento';
 const picture=document.getElementById('picture'),photo=document.getElementById('photo'),status=document.getElementById('status'),buy=document.getElementById('buy');
 let requestId=0;
+let currentPhotoId=null;
 let paymentPending=false;
 let paymentTimer=null;
 const progressBar=document.getElementById('payment-progress-bar');
@@ -28,7 +30,8 @@ async function loadPhoto(){
  try{
   const response=await fetch(API,{cache:'no-store'});if(!response.ok)throw new Error('Servizio non disponibile');
   const data=await response.json();if(!data.success||!data.photo_url)throw new Error('Foto non disponibile');
-  const image=new Image();image.onload=()=>{if(id!==requestId)return;picture.src=image.src;picture.hidden=false;photo.classList.add('ready');status.hidden=true;buy.removeAttribute('aria-disabled')};image.onerror=()=>{if(id!==requestId)return;showError()};image.src=data.photo_url;
+   if(typeof data.photo_id!=='string'||!/^foto_natale_[0-9]{3,12}\.(jpg|jpeg|png|webp)$/.test(data.photo_id))throw new Error('ID della foto mancante');
+  const image=new Image();image.onload=()=>{if(id!==requestId)return;picture.src=image.src;picture.hidden=false;photo.classList.add('ready');status.hidden=true;currentPhotoId=data.photo_id;buy.removeAttribute('aria-disabled')};image.onerror=()=>{if(id!==requestId)return;showError()};image.src=data.photo_url;
  }catch(e){if(id===requestId)showError()}
 }
 function showError(){status.hidden=false;status.innerHTML='<span>La fotografia non è ancora disponibile.<br>Riprova tra qualche istante.</span>';buy.setAttribute('aria-disabled','true')}
@@ -37,18 +40,34 @@ photo.addEventListener('contextmenu',e=>e.preventDefault());
 photo.addEventListener('dragstart',e=>e.preventDefault());
 photo.addEventListener('selectstart',e=>e.preventDefault());
 document.getElementById('refresh').addEventListener('click',loadPhoto);
-buy.addEventListener('click',e=>{
+buy.addEventListener('click',async e=>{
  e.preventDefault();
- if(buy.getAttribute('aria-disabled')==='true'||paymentPending)return;
+ if(buy.getAttribute('aria-disabled')==='true'||paymentPending||!currentPhotoId)return;
  paymentPending=true;
+ const selectedPhotoId=currentPhotoId;
  buy.classList.add('processing');
  buy.textContent='Preparazione del pagamento…';
  progressBar.classList.remove('running');
  void progressBar.offsetWidth;
  progressBar.classList.add('running');
  progressTrack.setAttribute('aria-valuenow','100');
- paymentTimer=setTimeout(()=>{window.location.assign(buy.href)},1500);
+ try{
+  const response=await fetch(CHECKOUT_API,{
+   method:'POST',
+   headers:{'Content-Type':'application/json'},
+   body:JSON.stringify({photo_id:selectedPhotoId})
+  });
+  const data=await response.json();
+  if(!response.ok||!data.checkout_url||!data.checkout_url.startsWith('https://checkout.stripe.com/')){
+   throw new Error(data.error||'Non è stato possibile preparare il pagamento');
+  }
+  window.location.assign(data.checkout_url);
+ }catch(error){
+  resetPayment();
+  alert('Pagamento non disponibile: '+(error.message||'riprova tra poco'));
+ }
 });
+
 document.getElementById('back-instructions').addEventListener('click',()=>{resetPayment();document.getElementById('preview').classList.add('hidden-page');document.getElementById('instructions').classList.remove('hidden-page')});
 document.getElementById('continue').addEventListener('click',()=>{document.getElementById('instructions').classList.add('hidden-page');document.getElementById('preview').classList.remove('hidden-page');loadPhoto()});
 </script></body></html>
