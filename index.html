@@ -22,16 +22,26 @@ let paymentPending=false;
 let paymentTimer=null;
 const progressBar=document.getElementById('payment-progress-bar');
 const progressTrack=document.querySelector('.payment-progress');
+function getPhotoId(data){
+ if(typeof data.photo_id==='string' && /^foto_natale_[0-9]{3,12}\.(jpg|jpeg|png|webp)$/i.test(data.photo_id))return data.photo_id;
+ try{
+  const url=new URL(data.photo_url);
+  if(url.origin!=='https://jpctjrzvjljhouvpmptb.supabase.co')return null;
+  const match=url.pathname.match(/^\/storage\/v1\/object\/sign\/foto-natale\/(foto_natale_[0-9]{3,12}\.(?:jpg|jpeg|png|webp))$/i);
+  return match?match[1]:null;
+ }catch{return null;}
+}
 function resetPayment(){if(paymentTimer!==null)clearTimeout(paymentTimer);paymentTimer=null;paymentPending=false;progressBar.classList.remove('running');progressTrack.setAttribute('aria-valuenow','0');buy.classList.remove('processing');buy.textContent='Acquista la mia foto – 3 €';}
 
 async function loadPhoto(){
  resetPayment();
+ currentPhotoId=null;
  const id=++requestId;buy.setAttribute('aria-disabled','true');photo.classList.remove('ready');picture.hidden=true;status.hidden=false;status.innerHTML='<div class="spinner"></div><span>Caricamento della fotografia...</span>';
  try{
   const response=await fetch(API,{cache:'no-store'});if(!response.ok)throw new Error('Servizio non disponibile');
   const data=await response.json();if(!data.success||!data.photo_url)throw new Error('Foto non disponibile');
-   if(typeof data.photo_id!=='string'||!/^foto_natale_[0-9]{3,12}\.(jpg|jpeg|png|webp)$/.test(data.photo_id))throw new Error('ID della foto mancante');
-  const image=new Image();image.onload=()=>{if(id!==requestId)return;picture.src=image.src;picture.hidden=false;photo.classList.add('ready');status.hidden=true;currentPhotoId=data.photo_id;buy.removeAttribute('aria-disabled')};image.onerror=()=>{if(id!==requestId)return;showError()};image.src=data.photo_url;
+  const photoId=getPhotoId(data);if(!photoId)throw new Error('ID della foto mancante');
+  const image=new Image();image.onload=()=>{if(id!==requestId)return;picture.src=image.src;picture.hidden=false;photo.classList.add('ready');status.hidden=true;currentPhotoId=photoId;buy.removeAttribute('aria-disabled')};image.onerror=()=>{if(id!==requestId)return;showError()};image.src=data.photo_url;
  }catch(e){if(id===requestId)showError()}
 }
 function showError(){status.hidden=false;status.innerHTML='<span>La fotografia non è ancora disponibile.<br>Riprova tra qualche istante.</span>';buy.setAttribute('aria-disabled','true')}
