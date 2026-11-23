@@ -38,9 +38,42 @@ function updateStars(){document.querySelectorAll('[data-star]').forEach(b=>{b.cl
 document.querySelectorAll('[data-star]').forEach(b=>b.addEventListener('click',()=>{rating=Number(b.dataset.star);updateStars()}));
 $('messaggio').addEventListener('input',()=>{$('count').textContent=$('messaggio').value.length+' / 500'});
 function status(text,error=false){$('status').textContent=text;$('status').className='status '+(error?'error':'ok');}
-async function load(){const board=$('board');board.textContent='Caricamento recensioni…';try{const r=await fetch(API,{cache:'no-store'});const j=await r.json();if(!r.ok||!j.success)throw Error(j.error||'Errore');board.replaceChildren();if(!j.recensioni.length){board.textContent='Non ci sono ancora recensioni. Puoi essere il primo!';return;}for(const item of j.recensioni){const box=document.createElement('article');box.className='entry';const header=document.createElement('div');header.className='row';const name=document.createElement('strong');name.textContent=item.nome;const stars=document.createElement('span');stars.className='gold';stars.textContent='★'.repeat(item.stelle)+'☆'.repeat(5-item.stelle);header.append(name,stars);const p=document.createElement('p');p.textContent=item.messaggio;const d=document.createElement('span');d.className='muted';d.textContent=new Date(item.created_at).toLocaleDateString('it-IT');box.append(header,p,d);board.append(box)}}catch(e){board.textContent='Impossibile caricare le recensioni. Riprova più tardi.'}}
+async function apiRequest(options={}){
+ let r;
+ try{r=await fetch(API,{cache:'no-store',...options});}
+ catch(e){throw Error('Connessione a Supabase non riuscita. Controlla che la funzione recensioni-natale sia pubblicata e che Verify JWT sia disattivato. (Errore di rete/CORS)');}
+ const raw=await r.text();let j;
+ try{j=JSON.parse(raw);}catch{throw Error('Supabase ha risposto con un formato inatteso (HTTP '+r.status+'). Verifica la funzione Edge.');}
+ if(!r.ok||!j.success){
+   const reason=j.error||j.message||'Errore sconosciuto';
+   if(r.status===401)return Promise.reject(Error('Supabase richiede un token (HTTP 401): disattiva Verify JWT per recensioni-natale.'));
+   if(r.status===404)return Promise.reject(Error('Funzione recensioni-natale non trovata (HTTP 404): pubblicala su Supabase.'));
+   throw Error(reason+' (HTTP '+r.status+')');
+ }
+ return j;
+}
+async function load(){
+ const board=$('board');board.textContent='Caricamento recensioni…';
+ try{
+  const j=await apiRequest();
+  if(!Array.isArray(j.recensioni))throw Error('Risposta incompleta: manca la lista recensioni.');
+  board.replaceChildren();
+  if(!j.recensioni.length){board.textContent='Nessuna recensione presente. Sii il primo a lasciarne una!';return;}
+  for(const item of j.recensioni){
+   const box=document.createElement('article');box.className='entry';
+   const header=document.createElement('div');header.className='row';
+   const name=document.createElement('strong');name.textContent=item.nome;
+   const stars=document.createElement('span');stars.className='gold';
+   const n=Math.max(1,Math.min(5,Number(item.stelle)||1));stars.textContent='★'.repeat(n)+'☆'.repeat(5-n);
+   header.append(name,stars);
+   const p=document.createElement('p');p.textContent=item.messaggio;
+   const d=document.createElement('span');d.className='muted';d.textContent=new Date(item.created_at).toLocaleDateString('it-IT');
+   box.append(header,p,d);board.append(box);
+  }
+ }catch(e){board.textContent='Impossibile leggere le recensioni: '+e.message;}
+}
 $('refresh').addEventListener('click',load);
-$('form').addEventListener('submit',async e=>{e.preventDefault();const nome=$('nome').value.trim().replace(/\s+/g,' '),messaggio=$('messaggio').value.trim().replace(/\s+/g,' ');if(nome.length<2||nome.length>40||messaggio.length<50||messaggio.length>500){status('Inserisci un nome valido e una recensione tra 50 e 500 caratteri.',true);return;}if(blocked(nome)||blocked(messaggio)){status('Questa recensione non può essere pubblicata. Modifica il testo e riprova.',true);return;}const btn=$('send');btn.disabled=true;status('Pubblicazione in corso…');try{const r=await fetch(API,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'publish',nome,stelle:rating,messaggio})});const j=await r.json();if(!r.ok||!j.success)throw Error(j.error||'Errore durante la pubblicazione');$('form').reset();rating=5;updateStars();$('count').textContent='0 / 500';status('Grazie! La tua recensione è stata pubblicata.');await load();}catch(err){status(err.message||'Errore di rete',true)}finally{btn.disabled=false}});
+$('form').addEventListener('submit',async e=>{e.preventDefault();const nome=$('nome').value.trim().replace(/\s+/g,' '),messaggio=$('messaggio').value.trim().replace(/\s+/g,' ');if(nome.length<2||nome.length>40||messaggio.length<50||messaggio.length>500){status('Inserisci un nome valido e una recensione tra 50 e 500 caratteri.',true);return;}if(blocked(nome)||blocked(messaggio)){status('Questa recensione non può essere pubblicata. Modifica il testo e riprova.',true);return;}const btn=$('send');btn.disabled=true;status('Pubblicazione in corso…');try{await apiRequest({method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'publish',nome,stelle:rating,messaggio})});$('form').reset();rating=5;updateStars();$('count').textContent='0 / 500';status('Grazie! La tua recensione è stata pubblicata.');await load();}catch(err){status(err.message||'Errore di rete',true)}finally{btn.disabled=false}});
 load();
 
 </script>
