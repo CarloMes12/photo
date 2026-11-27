@@ -17,6 +17,9 @@
 .preview::after{content:"";position:absolute;inset:0;z-index:2;background:transparent;pointer-events:auto}
 
 #checking .verification-box{background:#eef5ef;border:1px solid #d5e5d8;border-radius:17px;padding:18px;margin:20px 0;color:#426451}#checking .verification-box p{margin:8px auto 0;font-size:14px}#checking .verification-box strong{display:block;color:#215943}#checking[data-state="error"] .verification-box{background:#fff6e8;border-color:#edddc0}#checking .home-button{display:block;text-decoration:none;margin-top:16px}#checking .secondary[hidden]{display:none}.consent input:disabled{opacity:1;cursor:default}.consent-dialog[open]{animation:dialog-in .32s cubic-bezier(.2,.8,.2,1) both}.consent-dialog[open]::backdrop{animation:backdrop-in .32s ease both}.consent-dialog[open].closing{animation:dialog-out .26s ease both}.consent-dialog[open].closing::backdrop{animation:backdrop-out .26s ease both}.consent-dialog .secondary{margin-top:10px}@keyframes dialog-in{from{opacity:0;transform:translateY(12px) scale(.94)}to{opacity:1;transform:translateY(0) scale(1)}}@keyframes dialog-out{from{opacity:1;transform:scale(1)}to{opacity:0;transform:translateY(8px) scale(.96)}}@keyframes backdrop-in{from{opacity:0}to{opacity:1}}@keyframes backdrop-out{from{opacity:1}to{opacity:0}}
+
+.step.active{animation:soft-enter .48s ease both}.step.active.leaving{animation:soft-exit .22s ease both;pointer-events:none}@keyframes soft-enter{from{opacity:0;transform:translateY(7px)}to{opacity:1;transform:translateY(0)}}@keyframes soft-exit{to{opacity:0;transform:translateY(-5px)}}
+.preview img{animation:soft-enter .45s ease both}.photo-id{font-size:12px;color:#65796f;margin:-3px 0 17px;overflow-wrap:anywhere}.download-success{background:#eaf5ec;border:1px solid #cce3d1;border-radius:15px;padding:16px;margin-top:15px;color:#215943;animation:soft-enter .45s ease both}.download-success strong{display:block;font-size:17px}.download-success p{font-size:13px;margin:7px 0 0}.download-success[hidden],.photo-id[hidden]{display:none}.download-success .success-tick{display:inline-grid;place-items:center;width:38px;height:38px;background:#d5eadb;border-radius:50%;font-size:25px;margin-bottom:8px;animation:check-pop .55s ease both}.primary .loading{border-color:#ffffff66;border-top-color:#fff}
 </style>
 </head>
 <body>
@@ -45,9 +48,9 @@
 <div aria-hidden="true" class="hero">📸</div><h1 id="title3">La tua foto di Natale</h1>
 <p>Eccola qui! Il tuo ricordo natalizio è pronto. Scaricalo e porta un po' di magia con te. 🎄</p>
 <div class="preview"><div class="status" id="status" role="status">Sto preparando la tua fotografia…</div><img alt="Anteprima della tua foto di Natale" id="photo" draggable="false"/></div>
-<label class="consent"><input type="checkbox" id="accept-terms"><span>Scaricando la fotografia, accetto i <a href="https://carlomes12.github.io/photo/termini-privacy.html" target="_blank" rel="noopener noreferrer">Termini e condizioni</a> e mi impegno a utilizzarla esclusivamente per uso personale, senza condividerla o distribuirla a terzi.</span></label>
+<div class="photo-id" id="photo-id" hidden></div><label class="consent"><input type="checkbox" id="accept-terms"><span>Scaricando la fotografia, accetto i <a href="https://carlomes12.github.io/photo/termini-privacy.html" target="_blank" rel="noopener noreferrer">Termini e condizioni</a> e mi impegno a utilizzarla esclusivamente per uso personale, senza condividerla o distribuirla a terzi.</span></label>
 <button class="primary" disabled="" id="download" type="button">↓   Scarica la fotografia</button>
-<a class="secondary review-link" href="https://carlomes12.github.io/photo/recensioni.html" target="_blank" rel="noopener noreferrer">⭐ Lascia una recensione</a>
+<div class="download-success" id="download-success" role="status" hidden><span class="success-tick" aria-hidden="true">✓</span><strong>Download avviato!</strong><p>Controlla i download del tuo dispositivo per ritrovare la fotografia.</p><p>Buon Natale da Carlo.Mes! 🎄</p></div><a class="secondary review-link" href="https://carlomes12.github.io/photo/recensioni.html" target="_blank" rel="noopener noreferrer">⭐ Lascia una recensione</a>
 <p class="small">Se il collegamento temporaneo scade, il sistema proverà a rinnovarlo automaticamente per la stessa fotografia acquistata.</p>
 </section>
 <div class="footer">CARLO.MES · VIVI LA MAGIA DEL NATALE</div>
@@ -101,11 +104,18 @@ function celebrate(){
  function draw(now){const elapsed=now-start;if(elapsed>=4000){canvas.remove();return;}const dt=Math.min((now-last)/1000,.05);last=now;ctx.clearRect(0,0,w,h);ctx.globalAlpha=Math.min(1,(4000-elapsed)/650);for(const p of pieces){p.x+=p.dx*dt;p.y+=p.v*dt;p.r+=dt*4;ctx.save();ctx.translate(p.x,p.y);ctx.rotate(p.r);ctx.fillStyle=p.c;ctx.fillRect(-p.s/2,-p.s/3,p.s,p.s*.65);ctx.restore();}requestAnimationFrame(draw);}
  requestAnimationFrame(draw);
 }
-function showStep(index){
+let transitioning=false;
+async function showStep(index){
+ if(transitioning)return;
+ transitioning=true;
+ const current=document.querySelector('.step.active');
+ if(current && !matchMedia('(prefers-reduced-motion: reduce)').matches){current.classList.add('leaving');await wait(220);current.classList.remove('leaving');}
+
  checkingStep.classList.remove('active');
  steps.forEach((el,i)=>el.classList.toggle('active',i===index));
  window.scrollTo({top:0,behavior:'instant'});
  if(index===0)celebrate();
+ transitioning=false;
  if(index===2)showPhoto();
 }
 function showVerification(message,state="error"){
@@ -146,7 +156,7 @@ function loadImage(url){return new Promise((resolve,reject)=>{
 async function showPhoto(){
  const id=++requestNumber;
  img.style.display='none';img.removeAttribute('src');
- statusEl.hidden=false;statusEl.textContent='Sto preparando la tua fotografia…';
+ statusEl.hidden=false;statusEl.innerHTML='<span class="loading" aria-hidden="true"></span>Sto preparando la tua fotografia…';
  downloadBtn.disabled=true;
  try{
   // Una nuova verifica restituisce un URL firmato aggiornato, per LA STESSA foto acquistata.
@@ -161,16 +171,19 @@ async function showPhoto(){
   }
   if(id!==requestNumber)return;
   img.style.display='block';statusEl.hidden=true;downloadBtn.disabled=false;
+  const photoId=document.getElementById('photo-id');photoId.textContent=verified.photo_id?'ID fotografia: '+verified.photo_id:'';photoId.hidden=!verified.photo_id;
  }catch(e){if(id===requestNumber){statusEl.hidden=false;statusEl.textContent=e.message+' Riprova o ricarica questa pagina.';}}
 
 }
 document.getElementById('continue').addEventListener('click',()=>showStep(1));
 document.getElementById('show-photo').addEventListener('click',()=>showStep(2));
 verifyRetry.addEventListener('click',async()=>{if(await verifyPayment({showLoading:true}))showStep(0);});
+let downloading=false;
+const downloadSuccess=document.getElementById('download-success');
 downloadBtn.addEventListener('click',async()=>{
- if(!verified)return;
+ if(downloading||!verified)return;
  if(!acceptTerms.checked){consentDialog.showModal();return;}
- downloadBtn.disabled=true;downloadBtn.textContent='Preparo il download…';
+ downloading=true;downloadSuccess.hidden=true;downloadBtn.disabled=true;downloadBtn.setAttribute('aria-busy','true');downloadBtn.innerHTML='<span class="loading" aria-hidden="true"></span>Preparo il download…';
  try{
   let response=await fetch(verified.download_url,{cache:'no-store'});
   if(!response.ok){
@@ -184,9 +197,10 @@ downloadBtn.addEventListener('click',async()=>{
   const link=document.createElement('a');link.href=url;
   link.download=verified.photo_id||'Foto_Magica.jpg';
   document.body.appendChild(link);link.click();link.remove();
+  statusEl.hidden=true;downloadSuccess.hidden=false;
   setTimeout(()=>URL.revokeObjectURL(url),30000);
  }catch(error){statusEl.hidden=false;statusEl.textContent=error.message+' Riprova o ricarica questa pagina.';}
- finally{downloadBtn.disabled=false;downloadBtn.innerHTML='↓ &nbsp; Scarica la fotografia';}
+ finally{downloading=false;downloadBtn.removeAttribute('aria-busy');downloadBtn.disabled=false;downloadBtn.innerHTML='↓ &nbsp; Scarica la fotografia';}
 });
 verifyPayment({showLoading:true}).then(ok=>{if(ok)showStep(0);});
 </script>
