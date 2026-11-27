@@ -8,9 +8,13 @@
 <title>La tua foto di Natale</title>
 <style>
 :root{font-family:system-ui,-apple-system,"Segoe UI",sans-serif;color:#25453b;background:#e7f0e9}*{box-sizing:border-box}body{margin:0;min-height:100svh;display:grid;place-items:center;padding:25px 16px;background:radial-gradient(ellipse at 20% 10%,#fff8eb 0,transparent 42%),radial-gradient(ellipse at 80% 90%,#c9e1d3 0,transparent 45%),#e9f2ec;overflow-x:hidden}button{font:inherit;cursor:pointer}button:focus-visible{outline:3px solid #d8a74b;outline-offset:4px}.scene{position:fixed;inset:0;pointer-events:none;overflow:hidden;z-index:0}.ornament{position:absolute;opacity:.55;filter:drop-shadow(0 8px 10px #4b75551a);animation:float 9s ease-in-out infinite;user-select:none}.ornament:nth-child(1){top:9%;left:5%;font-size:56px}.ornament:nth-child(2){top:19%;right:6%;font-size:45px;animation-delay:-3s}.ornament:nth-child(3){bottom:9%;left:4%;font-size:57px;animation-delay:-5s}.ornament:nth-child(4){bottom:12%;right:5%;font-size:60px;animation-delay:-1s}.ornament:nth-child(5){top:54%;left:2%;font-size:28px;animation-delay:-4s}.ornament:nth-child(6){top:58%;right:3%;font-size:30px;animation-delay:-6s}.flake{position:absolute;top:-10%;color:#fff;font-size:22px;opacity:.75;animation:snow linear infinite}.flake:nth-of-type(7){left:12%;animation-duration:19s}.flake:nth-of-type(8){left:31%;animation-duration:24s;animation-delay:-8s}.flake:nth-of-type(9){left:55%;animation-duration:21s;animation-delay:-13s}.flake:nth-of-type(10){left:74%;animation-duration:26s;animation-delay:-4s}.flake:nth-of-type(11){left:92%;animation-duration:18s;animation-delay:-11s}@keyframes float{0%,100%{transform:translateY(0) rotate(-3deg)}50%{transform:translateY(-15px) rotate(4deg)}}@keyframes snow{from{transform:translateY(-10vh) rotate(0)}to{transform:translateY(125vh) rotate(300deg)}}main{position:relative;z-index:1;width:min(100%,580px);background:#fffdf9ee;backdrop-filter:blur(12px);border:1px solid #fff;border-radius:28px;padding:clamp(24px,5vw,42px);text-align:center;box-shadow:0 24px 70px #2a5e4530}.brand{font-size:12px;letter-spacing:.2em;text-transform:uppercase;font-weight:800;color:#b35c50}.step{display:none;animation:enter .35s ease-out}.step.active{display:block}@keyframes enter{from{opacity:0;transform:translateY(9px)}to{opacity:1;transform:translateY(0)}}.hero{font-size:57px;margin:13px 0 4px;line-height:1.15}h1{font-family:Georgia,serif;font-size:clamp(29px,6vw,42px);line-height:1.16;margin:14px 0;color:#215943}p{line-height:1.65;color:#5c7468;margin:12px auto 22px;max-width:440px}.lead{font-size:17px}.pill{display:inline-block;border:1px solid #e3d9c8;background:#fff8e9;color:#8a6040;padding:8px 13px;border-radius:50px;font-size:12px;font-weight:700}.primary{width:100%;border:0;background:linear-gradient(125deg,#236448,#33835d);color:#fff;border-radius:15px;padding:16px 20px;font-size:16px;font-weight:750;box-shadow:0 8px 20px #2868492b;transition:transform .2s,filter .2s}.primary:hover:not(:disabled){transform:translateY(-2px);filter:brightness(1.06)}.primary:disabled{opacity:.52;cursor:wait}.secondary{width:100%;border:1px solid #bad2c2;background:#fff;color:#286c4c;border-radius:14px;padding:14px 20px;font-weight:700;margin-top:11px}.instruction{display:flex;gap:12px;text-align:left;align-items:flex-start;padding:15px 0;border-bottom:1px solid #e8eee8}.instruction:last-of-type{border-bottom:0}.num{display:grid;place-items:center;flex:0 0 33px;height:33px;border-radius:50%;background:#e6f2e9;color:#2c7150;font-weight:800}.instruction strong{display:block;color:#2e5947;margin:2px 0 4px}.instruction span{color:#65796f;font-size:14px;line-height:1.5}.instructions{margin:22px 0 26px}.note{font-size:13px;color:#8a7155;background:#fff6e6;border:1px solid #f0dfc2;border-radius:12px;padding:11px;margin:18px 0}.preview{width:100%;aspect-ratio:3/2;border:1px solid #dce8df;border-radius:17px;overflow:hidden;background:#eaf0eb;display:grid;place-items:center;margin:20px 0 16px;position:relative}.preview img{width:100%;height:100%;object-fit:contain;display:none}.preview .status{padding:20px;font-size:14px;color:#567568;line-height:1.6}.small{font-size:12px;color:#7c8d81;margin:13px auto 0}.footer{margin-top:24px;font-size:11px;letter-spacing:.06em;color:#8d9e91}.loading{display:inline-block;width:18px;height:18px;border:2px solid #c7dcd0;border-top-color:#35785a;border-radius:50%;animation:spin 1s linear infinite;vertical-align:middle;margin-right:8px}@keyframes spin{to{transform:rotate(360deg)}}@media(max-width:680px){.ornament:nth-child(1),.ornament:nth-child(3){left:-20px;opacity:.25}.ornament:nth-child(2),.ornament:nth-child(4){right:-20px;opacity:.25}main{padding:25px 20px;border-radius:23px}}@media(prefers-reduced-motion:reduce){*,*:before,*:after{animation:none!important;transition:none!important}}
-.review-link{display:block;text-align:center;text-decoration:none;margin-top:11px}.review-link:hover{background:#f1f8f3}.review-link:focus-visible{outline:3px solid #d8a74b;outline-offset:4px}
+.review-link{display:block;text-align:center;text-decoration:none;margin-top:24px}.review-link:hover{background:#f1f8f3}.review-link:focus-visible{outline:3px solid #d8a74b;outline-offset:4px}
 
 .consent{display:flex;gap:10px;align-items:flex-start;text-align:left;background:#eef5ef;border:1px solid #d5e5d8;border-radius:13px;padding:13px;margin:0 0 15px;font-size:13px;line-height:1.55;color:#425e4c}.consent input{flex:none;width:19px;height:19px;margin:2px 0;accent-color:#287b49}.consent a{color:#245db2;text-decoration:underline}.consent-dialog{width:min(90vw,390px);border:1px solid #d5e5d8;border-radius:23px;padding:26px;background:#fffdf9;color:#215943;text-align:center;box-shadow:0 18px 60px #163c3850}.consent-dialog::backdrop{background:#173c2c80;backdrop-filter:blur(3px)}.consent-dialog h2{font-family:Georgia,serif;font-size:26px;margin:10px 0}.consent-dialog p{font-size:14px;margin:12px 0 20px}.consent-dialog .hero{font-size:42px}.celebrate-canvas{position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-index:20}.payment-check{display:inline-grid;place-items:center;background:#e4f2e7;color:#287b49;border-radius:50%;width:30px;height:30px;font-size:20px;vertical-align:middle;margin-left:8px;animation:check-pop .65s ease-out both}@keyframes check-pop{0%{transform:scale(.2);opacity:0}70%{transform:scale(1.15)}100%{transform:scale(1);opacity:1}}
+/* Protezione dell’anteprima, senza bloccare lo scorrimento della pagina. */
+.preview,.preview img{-webkit-touch-callout:none;-webkit-user-select:none;user-select:none;-webkit-user-drag:none;touch-action:pan-y}
+.preview img{pointer-events:none}
+.preview::after{content:"";position:absolute;inset:0;z-index:2;background:transparent;pointer-events:auto}
 </style>
 </head>
 <body>
@@ -38,12 +42,11 @@
 <section aria-labelledby="title3" class="step" id="step3">
 <div aria-hidden="true" class="hero">📸</div><h1 id="title3">La tua foto di Natale</h1>
 <p>Eccola qui! Il tuo ricordo natalizio è pronto. Scaricalo e porta un po' di magia con te. 🎄</p>
-<div class="preview"><div class="status" id="status" role="status">Sto preparando la tua fotografia…</div><img alt="Anteprima della tua foto di Natale" id="photo"/></div>
+<div class="preview"><div class="status" id="status" role="status">Sto preparando la tua fotografia…</div><img alt="Anteprima della tua foto di Natale" id="photo" draggable="false"/></div>
 <label class="consent"><input type="checkbox" id="accept-terms"><span>Scaricando la fotografia, accetto i <a href="https://carlomes12.github.io/photo/termini-privacy.html" target="_blank" rel="noopener noreferrer">Termini e condizioni</a> e mi impegno a utilizzarla esclusivamente per uso personale, senza condividerla o distribuirla a terzi.</span></label>
 <button class="primary" disabled="" id="download" type="button">↓   Scarica la fotografia</button>
-<button class="secondary" id="retry" type="button">↻  Aggiorna fotografia</button>
 <a class="secondary review-link" href="https://carlomes12.github.io/photo/recensioni.html" target="_blank" rel="noopener noreferrer">⭐ Lascia una recensione</a>
-<p class="small">Se il collegamento temporaneo scade, premi “Aggiorna fotografia” per richiederne uno nuovo.</p>
+<p class="small">Se il collegamento temporaneo scade, il sistema proverà a rinnovarlo automaticamente per la stessa fotografia acquistata.</p>
 </section>
 <div class="footer">CARLO.MES · VIVI LA MAGIA DEL NATALE</div>
 </main>
@@ -61,7 +64,10 @@ const verifyRetry=document.getElementById('verify-retry');
 const statusEl=document.getElementById('status');
 const img=document.getElementById('photo');
 const downloadBtn=document.getElementById('download');
-const retryBtn=document.getElementById('retry');
+const preview=document.querySelector('.preview');
+for(const event of ['contextmenu','dragstart','selectstart','copy']){
+ preview.addEventListener(event,e=>e.preventDefault());
+}
 let verified=null,checking=false,requestNumber=0;
 const wait=ms=>new Promise(resolve=>setTimeout(resolve,ms));
 const acceptTerms=document.getElementById('accept-terms');
@@ -112,7 +118,7 @@ async function verifyPayment({showLoading=false}={}){
   }
  }catch(error){
   if(showLoading){showVerification(error.message);verifyRetry.hidden=false;}
-  else{statusEl.hidden=false;statusEl.textContent=error.message;retryBtn.disabled=false;}
+  else{statusEl.hidden=false;statusEl.textContent=error.message;}
   return false;
  }finally{checking=false;}
  return false;
@@ -125,27 +131,25 @@ async function showPhoto(){
  const id=++requestNumber;
  img.style.display='none';img.removeAttribute('src');
  statusEl.hidden=false;statusEl.textContent='Sto preparando la tua fotografia…';
- downloadBtn.disabled=true;retryBtn.disabled=true;
+ downloadBtn.disabled=true;
  try{
   // Una nuova verifica restituisce un URL firmato aggiornato, per LA STESSA foto acquistata.
   if(!verified || !verified.download_url){
-   const ok=await verifyPayment();if(!ok)throw new Error('Verifica non riuscita. Premi Aggiorna fotografia.');
+   const ok=await verifyPayment();if(!ok)throw new Error('Verifica non riuscita. Ricarica questa pagina per riprovare.');
   }
   const url=verified.download_url;
-  await loadImage(url);
+  try{await loadImage(url);}catch{
+   verified=null;
+   if(!await verifyPayment())throw new Error('Impossibile recuperare la fotografia.');
+   await loadImage(verified.download_url);
+  }
   if(id!==requestNumber)return;
   img.style.display='block';statusEl.hidden=true;downloadBtn.disabled=false;
- }catch(e){if(id===requestNumber){statusEl.hidden=false;statusEl.textContent=e.message+' Premi Aggiorna fotografia.';}}
- finally{if(id===requestNumber)retryBtn.disabled=false;}
+ }catch(e){if(id===requestNumber){statusEl.hidden=false;statusEl.textContent=e.message+' Riprova o ricarica questa pagina.';}}
+
 }
 document.getElementById('continue').addEventListener('click',()=>showStep(1));
 document.getElementById('show-photo').addEventListener('click',()=>showStep(2));
-retryBtn.addEventListener('click',async()=>{
- verified=null;retryBtn.disabled=true;
- const ok=await verifyPayment();
- if(ok)await showPhoto();
- else retryBtn.disabled=false;
-});
 verifyRetry.addEventListener('click',async()=>{if(await verifyPayment({showLoading:true}))showStep(0);});
 downloadBtn.addEventListener('click',async()=>{
  if(!verified)return;
@@ -165,7 +169,7 @@ downloadBtn.addEventListener('click',async()=>{
   link.download=verified.photo_id||'Foto_Magica.jpg';
   document.body.appendChild(link);link.click();link.remove();
   setTimeout(()=>URL.revokeObjectURL(url),30000);
- }catch(error){statusEl.hidden=false;statusEl.textContent=error.message+' Premi Aggiorna fotografia.';}
+ }catch(error){statusEl.hidden=false;statusEl.textContent=error.message+' Riprova o ricarica questa pagina.';}
  finally{downloadBtn.disabled=false;downloadBtn.innerHTML='↓ &nbsp; Scarica la fotografia';}
 });
 verifyPayment({showLoading:true}).then(ok=>{if(ok)showStep(0);});
