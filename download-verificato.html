@@ -15,13 +15,15 @@
 .preview,.preview img{-webkit-touch-callout:none;-webkit-user-select:none;user-select:none;-webkit-user-drag:none;touch-action:pan-y}
 .preview img{pointer-events:none}
 .preview::after{content:"";position:absolute;inset:0;z-index:2;background:transparent;pointer-events:auto}
+
+#checking .verification-box{background:#eef5ef;border:1px solid #d5e5d8;border-radius:17px;padding:18px;margin:20px 0;color:#426451}#checking .verification-box p{margin:8px auto 0;font-size:14px}#checking .verification-box strong{display:block;color:#215943}#checking[data-state="error"] .verification-box{background:#fff6e8;border-color:#edddc0}#checking .home-button{display:block;text-decoration:none;margin-top:16px}#checking .secondary[hidden]{display:none}.consent input:disabled{opacity:1;cursor:default}.consent-dialog[open]{animation:dialog-in .32s cubic-bezier(.2,.8,.2,1) both}.consent-dialog[open]::backdrop{animation:backdrop-in .32s ease both}.consent-dialog[open].closing{animation:dialog-out .26s ease both}.consent-dialog[open].closing::backdrop{animation:backdrop-out .26s ease both}.consent-dialog .secondary{margin-top:10px}@keyframes dialog-in{from{opacity:0;transform:translateY(12px) scale(.94)}to{opacity:1;transform:translateY(0) scale(1)}}@keyframes dialog-out{from{opacity:1;transform:scale(1)}to{opacity:0;transform:translateY(8px) scale(.96)}}@keyframes backdrop-in{from{opacity:0}to{opacity:1}}@keyframes backdrop-out{from{opacity:1}to{opacity:0}}
 </style>
 </head>
 <body>
 <div aria-hidden="true" class="scene"><span class="ornament">🎄</span><span class="ornament">🦌</span><span class="ornament">⛄</span><span class="ornament">🎄</span><span class="ornament">❄️</span><span class="ornament">✨</span><span class="flake">❄</span><span class="flake">❄</span><span class="flake">❄</span><span class="flake">❄</span><span class="flake">❄</span></div>
 <main>
 <div class="brand">Carlo.Mes · Natale</div>
-<section class="step active" id="checking"><div aria-hidden="true" class="hero">🎄📸</div><h1>La tua foto di Natale</h1><p aria-live="polite" id="verify-status" role="status">Verifico il pagamento con Stripe…</p><button class="secondary" hidden="" id="verify-retry" type="button">↻ Riprova la verifica</button><p><a href="index.html">Torna alla pagina iniziale</a></p></section><section aria-labelledby="title1" class="step" id="step1">
+<section class="step active" id="checking" data-state="loading"><div aria-hidden="true" class="hero" id="verify-icon">🎄📸</div><div class="pill">Servizio fotografico Carlo.Mes</div><h1>La tua foto di Natale</h1><div class="verification-box"><strong id="verify-heading">Verifica del pagamento</strong><p aria-live="polite" id="verify-status" role="status">Verifico il pagamento con Stripe…</p></div><button class="secondary" hidden id="verify-retry" type="button">↻ Riprova la verifica</button><a class="primary home-button" href="index.html">← Torna alla pagina iniziale</a></section><section aria-labelledby="title1" class="step" id="step1">
 <div aria-hidden="true" class="hero">🎁</div><div class="pill">Un ricordo speciale per te</div>
 <h1 id="title1">Grazie per il tuo pagamento!</h1>
 <p class="lead">Grazie mille per aver acceso la magia del Natale con noi. ❤️</p>
@@ -50,7 +52,7 @@
 </section>
 <div class="footer">CARLO.MES · VIVI LA MAGIA DEL NATALE</div>
 </main>
-<dialog class="consent-dialog" id="consent-dialog" aria-labelledby="consent-title"><div class="hero" aria-hidden="true">🎄</div><h2 id="consent-title">Ci siamo quasi!</h2><p>Prima di portare a casa il tuo ricordo di Natale, ricordati di spuntare la casella di accettazione dei Termini e condizioni.</p><button class="primary" id="consent-ok" type="button">OK, ho capito</button></dialog>
+<dialog class="consent-dialog" id="consent-dialog" aria-labelledby="consent-title"><div class="hero" aria-hidden="true">🎄</div><h2 id="consent-title">Ci siamo quasi!</h2><p>Per scaricare il tuo ricordo di Natale, accetta i <a href="https://carlomes12.github.io/photo/termini-privacy.html" target="_blank" rel="noopener noreferrer">Termini e condizioni</a> e conferma che utilizzerai la fotografia esclusivamente per uso personale, senza distribuirla a terzi.</p><button class="primary" id="consent-ok" type="button">Accetto e continua</button><button class="secondary" id="consent-cancel" type="button">Non ora</button></dialog>
 <script>
 'use strict';
 // Il download viene autorizzato SOLO dalla funzione server verifica-pagamento.
@@ -72,8 +74,19 @@ let verified=null,checking=false,requestNumber=0;
 const wait=ms=>new Promise(resolve=>setTimeout(resolve,ms));
 const acceptTerms=document.getElementById('accept-terms');
 const consentDialog=document.getElementById('consent-dialog');
-document.getElementById('consent-ok').addEventListener('click',()=>consentDialog.close());
-consentDialog.addEventListener('close',()=>acceptTerms.focus());
+let closingConsent=false;
+function lockAcceptance(){acceptTerms.checked=true;acceptTerms.disabled=true;}
+acceptTerms.addEventListener('change',()=>{if(acceptTerms.checked)lockAcceptance();});
+function closeConsent(accepted){
+ if(closingConsent||!consentDialog.open)return;
+ closingConsent=true;
+ if(accepted)lockAcceptance();
+ consentDialog.classList.add('closing');
+ setTimeout(()=>{consentDialog.close();consentDialog.classList.remove('closing');closingConsent=false;downloadBtn.focus();},matchMedia('(prefers-reduced-motion: reduce)').matches?0:270);
+}
+document.getElementById('consent-ok').addEventListener('click',()=>closeConsent(true));
+document.getElementById('consent-cancel').addEventListener('click',()=>closeConsent(false));
+consentDialog.addEventListener('cancel',e=>{e.preventDefault();closeConsent(false);});
 let celebrated=false;
 function celebrate(){
  if(celebrated)return;celebrated=true;
@@ -95,15 +108,18 @@ function showStep(index){
  if(index===0)celebrate();
  if(index===2)showPhoto();
 }
-function showVerification(message){
+function showVerification(message,state="error"){
+ checkingStep.dataset.state=state;
+ document.getElementById("verify-heading").textContent=state==="loading"?"Verifica del pagamento":state==="missing"?"Nessun acquisto trovato":"Pagamento non verificato";
+ document.getElementById("verify-icon").textContent=state==="loading"?"🎄📸":"🎄🔎";
  checkingStep.classList.add('active');steps.forEach(el=>el.classList.remove('active'));
  verifyStatus.textContent=message;
 }
 async function verifyPayment({showLoading=false}={}){
  if(checking)return false;
- if(!sessionId){showVerification('Nessuna sessione di pagamento presente. Torna alla pagina iniziale per effettuare un ordine.');verifyRetry.hidden=true;return false;}
+ if(!sessionId){showVerification('Non abbiamo trovato una sessione di pagamento associata a questo collegamento. Per acquistare la tua fotografia, torna alla pagina iniziale.','missing');verifyRetry.hidden=true;return false;}
  checking=true;verifyRetry.hidden=true;
- if(showLoading)showVerification('Verifico il pagamento con Stripe…');
+ if(showLoading)showVerification('Verifico il pagamento con Stripe…','loading');
  try{
   for(let i=0;i<4;i++){
    if(showLoading && i>0)verifyStatus.textContent='Attendo la conferma di Stripe…';
